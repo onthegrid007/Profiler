@@ -1,0 +1,6 @@
+[submodule "vendor/Singleton"]
+	path = vendor/Singleton
+	url = https://github.com/onthegrid007/Singleton
+[submodule "vendor/std_extras"]
+	path = vendor/std_extras
+	url = https://github.com/onthegrid007/std_extras
