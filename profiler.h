@@ -5,9 +5,9 @@
 #include <condition_variable>
 #include <fstream>
 #include <deque>
-#include "vendor/FileUtilities/vendor/STDExtras/std_extras.hpp"
-#include "vendor/FileUtilities/vendor/STDExtras/advclock/advclock.hpp"
-#include "vendor/FileUtilities/vendor/STDExtras/vendor/Singleton/singleton_container_map.hpp"
+#include "vendor/FileUtilites/vendor/STDExtras/std_extras.hpp"
+#include "vendor/FileUtilites/vendor/STDExtras/advclock/advclock.hpp"
+#include "vendor/FileUtilites/vendor/STDExtras/vendor/Singleton/singleton_container_map.hpp"
 
 using namespace std::this_thread;
 using namespace std::chrono;
