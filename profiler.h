@@ -1,42 +1,16 @@
 #ifndef PROFILER_H_
 #define PROFILER_H_
 
-#include <thread>
 #include <condition_variable>
-#include <fstream>
 #include <deque>
-#include "vendor/FileUtilites/vendor/STDExtras/std_extras.hpp"
-#include "vendor/FileUtilites/vendor/STDExtras/advclock/advclock.hpp"
-#include "vendor/FileUtilites/vendor/STDExtras/vendor/Singleton/singleton_container_map.hpp"
+#include "vendor/STDExtras/STDExtras.hpp"
+#include "vendor/STDExtras/ADVClock/advclock.hpp"
+#include "vendor/STDExtras/vendor/Singleton/singleton_container_map.hpp"
 
 using namespace std::this_thread;
 using namespace std::chrono;
 
-// using Dur = duration<double, std::nano>;
-// using Elapsed = nanoseconds;
-
-namespace Profiler {
-    template <size_t N>
-    struct rValStr {
-        char data[N];
-    };
-    template <size_t N, size_t K>
-    constexpr auto RemoveStringContents(const char(&expr)[N], const char(&remove)[K]) {
-        rValStr<N> result = {};
-        size_t srcIdx = 0;
-        size_t dstIdx = 0;
-        while(srcIdx < N) {
-            size_t matchIdx = 0;
-            while(matchIdx < K - 1 && srcIdx + matchIdx < N - 1 && expr[srcIdx + matchIdx] == remove[matchIdx])
-                matchIdx++;
-            if(matchIdx == (K - 1))
-                srcIdx += matchIdx;
-            result.data[dstIdx++] = expr[srcIdx] == '"' ? '\'' : expr[srcIdx];
-            srcIdx++;
-        }
-        return result;
-    }
-    
+namespace Profiler {    
     class Session : public SingletonContainerMap<Session> {
         public:
         struct Result {
