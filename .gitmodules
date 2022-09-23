@@ -1,0 +1,9 @@
+[submodule "vendor/portable-file-dialogs"]
+	path = vendor/portable-file-dialogs
+	url = https://github.com/samhocevar/portable-file-dialogs
+[submodule "vendor/FileUtilities"]
+	path = vendor/FileUtilities
+	url = https://github.com/onthegrid007/FileUtilities
+[submodule "vendor/STDExtras"]
+	path = vendor/STDExtras
+	url = https://github.com/onthegrid007/STDExtras
