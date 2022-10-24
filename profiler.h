@@ -4,10 +4,10 @@
 #include "vendor/portable-file-dialogs/portable-file-dialogs.h"
 #include <condition_variable>
 #include <deque>
-#include "vendor/STDExtras/STDExtras.hpp"
-#include "vendor/STDExtras/Semaphore/semaphore.h"
-#include "vendor/STDExtras/ADVClock/advclock.hpp"
-#include "vendor/STDExtras/vendor/Singleton/singleton_container_map.hpp"
+#include "vendor/FileUtilities/vendor/DynamicDLL/vendor/STDExtras/STDExtras.hpp"
+#include "vendor/FileUtilities/vendor/DynamicDLL/vendor/STDExtras/Semaphore/semaphore.h"
+#include "vendor/FileUtilities/vendor/DynamicDLL/vendor/STDExtras/ADVClock/advclock.hpp"
+#include "vendor/FileUtilities/vendor/DynamicDLL/vendor/STDExtras/vendor/Singleton/singleton_container_map.hpp"
 #include "vendor/FileUtilities/FileUtilities.hpp"
 
 using namespace std::this_thread;
