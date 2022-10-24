@@ -4,11 +4,11 @@
 #include "vendor/portable-file-dialogs/portable-file-dialogs.h"
 #include <condition_variable>
 #include <deque>
-#include "vendor/FileUtilities/vendor/DynamicDLL/vendor/STDExtras/STDExtras.hpp"
-#include "vendor/FileUtilities/vendor/DynamicDLL/vendor/STDExtras/Semaphore/semaphore.h"
-#include "vendor/FileUtilities/vendor/DynamicDLL/vendor/STDExtras/ADVClock/advclock.hpp"
-#include "vendor/FileUtilities/vendor/DynamicDLL/vendor/STDExtras/vendor/Singleton/singleton_container_map.hpp"
-#include "vendor/FileUtilities/FileUtilities.hpp"
+#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/STDExtras.hpp"
+#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/Semaphore/semaphore.h"
+#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/ADVClock/advclock.hpp"
+#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/Singleton/singleton_container_map.hpp"
+#include "vendor/DynamicDLL/vendor/FileUtilities/FileUtilities.hpp"
 
 using namespace std::this_thread;
 using namespace std::chrono;
@@ -56,7 +56,7 @@ namespace Profiler {
         void InternalProcessFront(Session::Result& R);
         void EndInternal();
         const std::string m_name;
-        FileUtilities::HLFileHandle m_filePath;
+        FileUtilities::ParsedPath m_filePath;
         Semaphore* m_sem;
         std::mutex* m_mtx;
         std::ofstream* m_fileStream;
