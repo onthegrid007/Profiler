@@ -106,32 +106,32 @@ namespace Profiler {
     }
     
     void Session::BeginSession(const std::string SessionName) {
-        SCM::CreateNewInstance(SessionName, SessionName);
+        CreateNewInstance(SessionName, SessionName);
     }
     
     void Session::BeginSession(const std::string SessionName, const std::string FilePath) {
-        SCM::CreateNewInstance(SessionName, SessionName, FilePath);
+        CreateNewInstance(SessionName, SessionName, FilePath);
     }
     
     void Session::SaveResult(const std::string SessionName, Session::Result&& Result) {
-        SCM::GetInstanceByKey(SessionName, SessionName).SaveResult(std::move(Result));
+        GetInstanceByKey(SessionName, SessionName).SaveResult(std::move(Result));
     }
     
     void Session::EndSession(const std::string SessionName) {
-        SCM::DeleteInstanceByKey(SessionName);
+        DeleteInstanceByKey(SessionName);
     };
     
     bool Session::SessionExists(const std::string SessionName) {
-        return SCM::Exists(SessionName);
+        return Exists(SessionName);
     };
     
     void Session::TerminateMain() {
-        for(auto& session : SCM::CMap)
+        for(auto& session : CMap)
             Session::TerminateSession(session.first);
     }
     
     void Session::TerminateSession(const std::string SessionName) {
-        auto& session = SCM::GetInstanceByKey(SessionName, SessionName);
+        auto& session = GetInstanceByKey(SessionName, SessionName);
         session.m_isRunning = false;
         session.m_sem->notify();
         session.m_thread->join();
@@ -139,18 +139,18 @@ namespace Profiler {
     
     Session::ProfileScope::ProfileScope(const std::string SessionName, const std::string Name) :
         m_sessionName(SessionName),
-        m_result({ Name, std::this_thread::get_id(), SCM::GetInstanceByKey(SessionName, SessionName).m_timer.nowDur(), nanoseconds(0)}) {
+        m_result({ Name, std::this_thread::get_id(), GetInstanceByKey(SessionName, SessionName).m_timer.nowDur(), nanoseconds(0)}) {
         // std::cout << "Profiling scope: " << Name << " using session: " << SessionName << std::endl;
     }
     
     Session::ProfileScope::ProfileScope(Profiler::Session& session, const std::string Name) :
-        m_sessionName(SCM::GetKeyByInstance(session)),
+        m_sessionName(GetKeyByInstance(session)),
         m_result({ Name, std::this_thread::get_id(), session.m_timer.nowDur(), nanoseconds(0)}) { 
-        // std::cout << "Profiling scope: " << Name << " using session: " << SCM::GetKeyByInstance(session) << std::endl; 
+        // std::cout << "Profiling scope: " << Name << " using session: " << GetKeyByInstance(session) << std::endl; 
     }
 
     Session::ProfileScope::~ProfileScope() {
-        const auto speed = SCM::GetInstanceByKey(m_sessionName, m_sessionName).m_timer.nowDur();
+        const auto speed = GetInstanceByKey(m_sessionName, m_sessionName).m_timer.nowDur();
         // std::cout << "profiled and saving results: " << m_result.Name << std::endl;
         m_result.Elapsed = (speed - m_result.Start);
         Session::SaveResult(m_sessionName, std::move(m_result));
