@@ -2,12 +2,10 @@
 #define PROFILER_H_
 
 #include "vendor/portable-file-dialogs/portable-file-dialogs.h"
-#include <condition_variable>
-#include <deque>
 #include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/STDExtras.hpp"
-#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/Semaphore/semaphore.h"
-#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/ADVClock/advclock.hpp"
-#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/Singleton/singleton_container_map.hpp"
+#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/vendor/Semaphore/semaphore.h"
+#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/vendor/ADVClock/advclock.hpp"
+#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/vendor/Semaphore/vendor/Singleton/singleton_container_map.hpp"
 #include "vendor/DynamicDLL/vendor/FileUtilities/FileUtilities.hpp"
 
 using namespace std::this_thread;
