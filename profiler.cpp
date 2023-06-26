@@ -3,35 +3,30 @@ _SCM_CHILD_DEFINITIONS(Profiler::Session)
 
 namespace Profiler {
     Session::Session(const std::string Name) :
-        m_name(Name),
-        m_mtx(new std::mutex()),
-        m_sem(new Semaphore(0)),
-        m_isRunning(false),
-        m_thread(new std::thread([&](){ return this->Internal(); })) {
-            m_filePath = m_name + "-Profile.json";
-            // std::cout << "creating profile: " << m_name << std::endl;
-            m_isRunning = true;
-        }
-        
-    Session::Session(const std::string Name, const std::string FilePath) :
-        m_name(Name),
-        m_mtx(new std::mutex()),
-        m_sem(new Semaphore(0)),
-        m_filePath(FilePath),
-        m_isRunning(false),
-        m_thread(new std::thread([&](){ return this->Internal(); })) {
-            // std::cout << "creating profile: " << m_name << std::endl;
-            m_isRunning = true;
-        }
-    
-    Session::~Session() {
-        // std::cout << "destroying profile: " << m_name << std::endl;
+    m_name(Name),
+    m_mtx(new std::mutex()),
+    m_sem(new Semaphore(0)),
+    m_isRunning(false),
+    m_thread(new std::thread([&](){ return this->Internal(); })) {
+        m_filePath = m_name + "-Profile.json";
+        m_isRunning = true;
     }
+    
+    Session::Session(const std::string Name, const std::string FilePath) :
+    m_name(Name),
+    m_mtx(new std::mutex()),
+    m_sem(new Semaphore(0)),
+    m_filePath(FilePath),
+    m_isRunning(false),
+    m_thread(new std::thread([&](){ return this->Internal(); })) {
+        m_isRunning = true;
+    }
+    
+    Session::~Session() {}
     
     void Session::BeginInternal() {
         while(!m_isRunning) std::_yield();
         // if(m_fileStream) m_fileStream->std::~ofstream();
-        // std::cout << "session begin internal: " << m_name << std::endl;
         m_fileStream = new std::ofstream(m_filePath);
         WriteHeader();
     }
@@ -49,18 +44,17 @@ namespace Profiler {
             m_sem->inc();
         }
    };
-
+   
     void Session::WriteResult(const Session::Result& Result) {
-        // std::cout << "write result: " << m_name << std::endl;
         *m_fileStream <<
         ",{" <<
         "\"cat\":\"function\"," <<
-        "\"dur\":" << ADVClock::RuntimeCast<double>(Result.Elapsed, ADVClock::Precision::Microseconds) << ',' <<
+        "\"dur\":" << ADVClock::ElapsedRuntimeCast<double>(Result.Elapsed, ADVClock::Precision::MicroS) << ',' <<
         "\"name\":\"" << Result.Name << "\"," <<
         "\"ph\":\"X\"," <<
         "\"pid\":0," <<
         "\"tid\":" << Result.ID << "," <<
-        "\"ts\":" << ADVClock::RuntimeCast<double>(Result.Start, ADVClock::Precision::Microseconds) <<
+        "\"ts\":" << ADVClock::ElapsedRuntimeCast<double>(Result.Start, ADVClock::Precision::MicroS) <<
         "}";
         m_fileStream->flush();
     }
@@ -82,7 +76,6 @@ namespace Profiler {
                 if(m_pendingResults.size() > 0) InternalProcessFront(R);
             }
             else {
-                // Flush
                 while(m_pendingResults.size() > 0) InternalProcessFront(R);
                 break;
             }
@@ -126,8 +119,7 @@ namespace Profiler {
     };
     
     void Session::TerminateMain() {
-        for(auto& session : CMap)
-            Session::TerminateSession(session.first);
+        for(auto& session : CMap) Session::TerminateSession(session.first);
     }
     
     void Session::TerminateSession(const std::string SessionName) {
@@ -139,19 +131,16 @@ namespace Profiler {
     
     Session::ProfileScope::ProfileScope(const std::string SessionName, const std::string Name) :
         m_sessionName(SessionName),
-        m_result({ Name, std::this_thread::get_id(), GetInstanceByKey(SessionName, SessionName).m_timer.nowDur(), nanoseconds(0)}) {
-        // std::cout << "Profiling scope: " << Name << " using session: " << SessionName << std::endl;
+        m_result({ Name, std::this_thread::get_id(), GetInstanceByKey(SessionName, SessionName).m_timer.nowDur(), std::chrono::nanoseconds(0)}) {
     }
     
     Session::ProfileScope::ProfileScope(Profiler::Session& session, const std::string Name) :
         m_sessionName(GetKeyByInstance(session)),
-        m_result({ Name, std::this_thread::get_id(), session.m_timer.nowDur(), nanoseconds(0)}) { 
-        // std::cout << "Profiling scope: " << Name << " using session: " << GetKeyByInstance(session) << std::endl; 
+        m_result({ Name, std::this_thread::get_id(), session.m_timer.nowDur(), std::chrono::nanoseconds(0)}) { 
     }
-
+    
     Session::ProfileScope::~ProfileScope() {
         const auto speed = GetInstanceByKey(m_sessionName, m_sessionName).m_timer.nowDur();
-        // std::cout << "profiled and saving results: " << m_result.Name << std::endl;
         m_result.Elapsed = (speed - m_result.Start);
         Session::SaveResult(m_sessionName, std::move(m_result));
     }

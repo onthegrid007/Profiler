@@ -1,15 +1,14 @@
 #ifndef PROFILER_H_
 #define PROFILER_H_
+// #include <string>
+// #include <bitset>
+// #include "vendor/portable-file-dialogs/portable-file-dialogs.h"
 
-#include "vendor/portable-file-dialogs/portable-file-dialogs.h"
-#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/STDExtras.hpp"
-#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/vendor/Semaphore/semaphore.h"
-#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/vendor/ADVClock/advclock.hpp"
-#include "vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/vendor/Semaphore/vendor/Singleton/singleton_container_map.hpp"
-#include "vendor/DynamicDLL/vendor/FileUtilities/FileUtilities.hpp"
-
-using namespace std::this_thread;
-using namespace std::chrono;
+#include "vendor/FPNBits/vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/STDExtras.hpp"
+#include "vendor/FPNBits/vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/vendor/Semaphore/vendor/Singleton/singleton_container_map.hpp"
+#include "vendor/FPNBits/vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/vendor/Semaphore/semaphore.h"
+#include "vendor/FPNBits/vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/vendor/ADVClock/advclock.hpp"
+#include "vendor/FPNBits/vendor/DynamicDLL/vendor/FileUtilities/FileUtilities.hpp"
 
 namespace Profiler {
     class Session : public SingletonContainerMap<Profiler::Session> {
@@ -17,8 +16,8 @@ namespace Profiler {
         struct Result {
             std::string Name;
             std::ThreadID ID;
-            nanoseconds Start;
-            nanoseconds Elapsed;
+            std::chrono::nanoseconds Start;
+            std::chrono::nanoseconds Elapsed;
         };
         
         class ProfileScope {
