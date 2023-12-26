@@ -22,7 +22,7 @@ namespace Profiler {
         inline static std::mutex _SMTX{};
         
         static const bool SessionExists(const std::string SessionName) {
-            return ((_Sessions.find(SessionName) != _Sessions.end()) && !_Sessions.empty());
+            return ((_Sessions.find(SessionName) != _Sessions.end()));
         }
         
         static Session& BeginSession(const std::string SessionName) {
