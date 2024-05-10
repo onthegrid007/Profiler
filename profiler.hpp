@@ -11,6 +11,7 @@
 #include "vendor/ThreadPool/vendor/Semaphore/semaphore.hpp"
 #include "vendor/ThreadPool/vendor/Semaphore/vendor/Singleton/nonmoveable.h"
 #include "vendor/ThreadPool/vendor/ADVClock/advclock.hpp"
+#include <fstream>
 
 namespace Profiler {
     class Session : public NonCopyable, public NonMovable {
@@ -101,7 +102,7 @@ namespace Profiler {
             S << std::setprecision(8) << std::fixed << "{\"otherData\": {},\"traceEvents\":[{}";
 		    S.flush();
             while(m_isRunning) {
-                m_sem.waitFor([&, this](const std::uint64_t cVal, const std::I64 CInitVal){
+                m_sem.waitFor([&, this](const std::uint64_t cVal, const std::uint64_t CInitVal){
                     return (cVal != CInitVal) || (!m_isRunning);
                 });
                 Lock lock(m_mtx);
