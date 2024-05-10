@@ -1,16 +1,21 @@
-#ifndef PROFILER_H_
-#define PROFILER_H_
+/*
+*   BSD 3-Clause License, see file labled 'LICENSE' for the full License.
+*   Copyright (c) 2024, Peter Ferranti
+*   All rights reserved.
+*/
 
-#include "vendor/FPNBits/vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/STDExtras.hpp"
-#include "vendor/FPNBits/vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/threadpool.hpp"
-#include "vendor/FPNBits/vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/vendor/Semaphore/semaphore.hpp"
-#include "vendor/FPNBits/vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/vendor/Semaphore/vendor/Singleton/nonmoveable.h"
-#include "vendor/FPNBits/vendor/DynamicDLL/vendor/FileUtilities/vendor/STDExtras/vendor/ThreadPool/vendor/ADVClock/advclock.hpp"
-#include "vendor/FPNBits/vendor/DynamicDLL/vendor/FileUtilities/FileUtilities.hpp"
+#ifndef PROFILER_HPP_
+#define PROFILER_HPP_
+
+#include "vendor/ThreadPool/threadpool.hpp"
+#include "vendor/ThreadPool/vendor/Semaphore/semaphore.hpp"
+#include "vendor/ThreadPool/vendor/Semaphore/vendor/Singleton/nonmoveable.h"
+#include "vendor/ThreadPool/vendor/ADVClock/advclock.hpp"
 
 namespace Profiler {
     class Session : public NonCopyable, public NonMovable {
         public:
+        typedef std::lock_guard<std::mutex> Lock;
         struct Result {
             std::string Name;
             PlatformThread::IDType ID;
@@ -26,14 +31,14 @@ namespace Profiler {
         }
         
         static Session& BeginSession(const std::string SessionName) {
-            std::ThreadLock lock(_SMTX);
+            Lock lock(_SMTX);
             if(SessionExists(SessionName))
                 return *(_Sessions[SessionName]);
             return *(_Sessions[SessionName] = std::move(new Session(SessionName)));
         }
         
         static Session& BeginSession(const std::string SessionName, const std::string FilePath) {
-            std::ThreadLock lock(_SMTX);
+            Lock lock(_SMTX);
             if(SessionExists(SessionName))
                 return *(_Sessions[SessionName]);
             return *(_Sessions[SessionName] = std::move(new Session(SessionName, FilePath)));
@@ -46,14 +51,14 @@ namespace Profiler {
         static void SaveResult(const std::string SessionName, const Session::Result&& Result) {
             Session& self{GetSession(SessionName)};
             if(self.m_isRunning) {
-                std::ThreadLock lock(self.m_mtx);
+                Lock lock(self.m_mtx);
                 self.m_pendingResults.emplace_back(std::move(Result));
                 self.m_sem.inc();
             }
         }
         
         static void EndSession(const std::string SessionName) {
-            std::ThreadLock lock(_SMTX);
+            Lock lock(_SMTX);
             if(!SessionExists(SessionName)) return;
             const auto self{_Sessions.find(SessionName)};
             self->second->~Session();
@@ -78,30 +83,30 @@ namespace Profiler {
         };
         
         private:
+        ADVClock m_timer;
         const std::string m_name;
-        FileUtilities::ParsedPath m_filePath;
-        Semaphore m_sem{0};
+        bool m_isRunning;
+        const std::string m_filePath;
+        Semaphore m_sem;
         std::mutex m_mtx;
         PlatformThread* m_thread;
         std::deque<Result> m_pendingResults;
-        ADVClock m_timer;
-        bool m_isRunning{true};
         friend class ProfileScope;
         
         void Internal() {
             Result R{};
             std::ofstream S(m_filePath);
-            if(!(S.is_open())) return;
+            if(!(S.is_open())) throw std::runtime_error("Could not open profiler output!");
             S.clear();
             S << std::setprecision(8) << std::fixed << "{\"otherData\": {},\"traceEvents\":[{}";
 		    S.flush();
             while(m_isRunning) {
-                m_sem.waitFor([&, this](const std::I64 cVal, const std::I64 CInitVal){
+                m_sem.waitFor([&, this](const std::uint64_t cVal, const std::I64 CInitVal){
                     return (cVal != CInitVal) || (!m_isRunning);
                 });
-                std::ThreadLock lock(m_mtx);
+                Lock lock(m_mtx);
                 while(m_pendingResults.size() > 0) {
-                    R = {};
+                    // R = {};
                     R = std::move(m_pendingResults[0]);
                     m_pendingResults.pop_front();
                     S <<
@@ -125,12 +130,16 @@ namespace Profiler {
         
         Session(const std::string Name) :
             m_name(Name),
-            m_filePath(Name + ".profile", FileUtilities::ParsedPath::RELATIVE{}),
+            m_isRunning(true),
+            m_filePath(Name + ".profile"),
+            m_sem(0),
             m_thread(new PlatformThread([this](){ return this->Internal(); })) {}
         
         Session(const std::string Name, const std::string FilePath) :
             m_name(Name),
-            m_filePath(FilePath, FileUtilities::ParsedPath::ABS{}),
+            m_isRunning(true),
+            m_filePath(FilePath),
+            m_sem(0),
             m_thread(new PlatformThread([this](){ return this->Internal(); })) {}
         
         ~Session() {
