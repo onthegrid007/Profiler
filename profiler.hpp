@@ -1,6 +1,6 @@
 /*
 *   BSD 3-Clause License, see file labled 'LICENSE' for the full License.
-*   Copyright (c) 2024, Peter Ferranti
+*   Copyright (c) 2025, Peter Ferranti
 *   All rights reserved.
 */
 
@@ -107,18 +107,17 @@ namespace Profiler {
                 });
                 Lock lock(m_mtx);
                 while(m_pendingResults.size() > 0) {
-                    // R = {};
                     R = std::move(m_pendingResults[0]);
                     m_pendingResults.pop_front();
                     S <<
                     ",{" <<
                     "\"cat\":\"function\"," <<
-                    "\"dur\":" << ADVClock::ElapsedRuntimeCast<double>(R.Elapsed, ADVClock::Precision::MicroS) << ',' <<
+                    "\"dur\":" << ADVClock::elapsedRuntimeCast<double>(R.Elapsed, ADVClock::Precision::MicroS) << ',' <<
                     "\"name\":\"" << R.Name << "\"," <<
                     "\"ph\":\"X\"," <<
                     "\"pid\":0," <<
                     "\"tid\":" << R.ID << "," <<
-                    "\"ts\":" << ADVClock::ElapsedRuntimeCast<double>(R.Start, ADVClock::Precision::MicroS) <<
+                    "\"ts\":" << ADVClock::elapsedRuntimeCast<double>(R.Start, ADVClock::Precision::MicroS) <<
                     "}";
                     S.flush();
                     m_sem.dec();
