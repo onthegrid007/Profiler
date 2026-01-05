@@ -88,7 +88,7 @@ namespace Profiler {
         const std::string m_name;
         bool m_isRunning;
         const std::string m_filePath;
-        Semaphore m_sem;
+        BasicSemaphore m_sem;
         std::mutex m_mtx;
         PlatformThread* m_thread;
         std::deque<Result> m_pendingResults;
